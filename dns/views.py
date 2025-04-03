@@ -40,6 +40,7 @@ def scan_currently_being_active():
     pass
 #get_configuration()
 
+youtube_urls_to_block = ['googlevideo.com', 'youtubei.googleapis.com', 'youtube.com']
 
 def youtube_status(request):
 
@@ -48,11 +49,8 @@ def youtube_status(request):
     if request.htmx:
         if not created:
             youtube.status = not youtube.status
-
-        if youtube.status:
-            modify_blocklist('youtube.com', REMOVE)
-        else:
-            modify_blocklist('youtube.com', ADD)
+        for domain in youtube_urls_to_block:
+            modify_blocklist(domain, REMOVE if youtube.status else ADD)
 
         youtube.save()
 
