@@ -1,6 +1,6 @@
 import requests
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template import loader
 
 from dns.models import YouTube
@@ -15,18 +15,15 @@ HEADERS = {
 
 REMOVE = 'remove'
 ADD = 'add'
-CAN_TAKE_5_MINS = ' (it can take 5 minutes...)'
 
 def modify_blocklist(domain: str, action: str):
 
     if action == REMOVE:
         requests.delete(BLOCKLIST_URL + '/' + domain, headers=HEADERS)
-        return 'allowed access to ' + domain + CAN_TAKE_5_MINS
     if action == ADD:
         try:
             payload = {'id': domain}
-            response = requests.post(BLOCKLIST_URL, headers=HEADERS, json=payload)
-            return 'blocked ' + domain + CAN_TAKE_5_MINS
+            requests.post(BLOCKLIST_URL, headers=HEADERS, json=payload)
 
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
@@ -36,25 +33,29 @@ def get_configuration():
     response = requests.get(f"https://api.nextdns.io/profiles/{settings.NEXTDNS_PROFILE_ID}", headers=HEADERS)
     return response.json()
 
-def scan_currently_being_active():
-    pass
-#get_configuration()
 
-youtube_urls_to_block = ['googlevideo.com', 'youtubei.googleapis.com', 'youtube.com']
+def check_enabled_in_configuration(youtube_urls_to_block):
+    config = get_configuration()["data"]["denylist"]
+    blocked_domains = [info['id'] for info in config]
+    for domain in youtube_urls_to_block:
+        if domain in blocked_domains:
+            return False
+
+    return True
 
 def youtube_status(request):
+    youtube_urls_to_block = ['googlevideo.com', 'youtubei.googleapis.com', 'youtube.com']
 
-    youtube, created = YouTube.objects.get_or_create(status=True)
-
-    if request.htmx:
-        if not created:
-            youtube.status = not youtube.status
+    status = check_enabled_in_configuration(youtube_urls_to_block)
+    first = request.POST.get('first', 'false') == 'true'
+    if not first:
+        status = not status
         for domain in youtube_urls_to_block:
-            modify_blocklist(domain, REMOVE if youtube.status else ADD)
+            modify_blocklist(domain, REMOVE if status else ADD)
 
-        youtube.save()
+
 
     template = loader.get_template('dns/_youtube_status.html')
-    rendered_template = template.render(context={'status': youtube.status})
+    rendered_template = template.render(context={'status': status})
     return HttpResponse(rendered_template)
 

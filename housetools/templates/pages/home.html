@@ -8,9 +8,10 @@
   {% if user.is_authenticated %}
 
     <div
-      hx-get="/update-youtube-status/"
+      hx-post="/update-youtube-status/"
       hx-trigger="load"
       hx-swap="outerHTML"
+      hx-vals='{"first": true}'
     >
       Loading YouTube status...
     </div>
