@@ -6,6 +6,9 @@
 
   <h1>Some mischievous tools</h1>
   {% if user.is_authenticated %}
+    <button type="button" class="btn btn-primary btn-sm" onclick="location.reload();">
+      <i class="fas fa-sync-alt"></i> Refresh
+    </button>
 
     <div
       hx-post="/update-youtube-status/"
