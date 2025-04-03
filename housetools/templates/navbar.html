@@ -17,24 +17,9 @@
       </button>
 
       <div class="collapse navbar-collapse" id="navbarContent">
-        <!-- Left-hand nav items -->
-        <ul class="navbar-nav me-auto">
-          {% if request.user.is_authenticated %}
-            <li class="nav-item active">
-              <button
-                class="btn btn-primary"
-                onclick="window.location.href='{% url 'home' %}'">
-                Learning Hub
-              </button>
-            </li>
-          {% endif %}
-        </ul>
 
         <!-- Right-hand nav items -->
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'about' %}">About</a>
-          </li>
           {% if request.user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'users:detail' request.user.pk %}">{% translate "My Profile" %}</a>
