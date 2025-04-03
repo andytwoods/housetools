@@ -1,0 +1,23 @@
+<div id="youtube-status" class="mt-4 border shadow bg-faded p-4">
+  <button
+    type="button"
+    class="btn btn-danger btn-sm"
+    hx-post="/update-youtube-status/"
+    hx-target="#youtube-status"
+    hx-swap="outerHTML"
+    hx-disabled-elt="this"
+  >
+    toggle
+  </button>
+  {% if status %}
+    YouTube <span class="fw-bold text-success">enabled</span>
+  {% else %}
+    YouTube <span class="fw-bold text-danger">disabled</span>
+  {% endif %}
+
+  <p class="form-text text-muted mt-2"
+     It can take 20 minutes for YouTube to stop. The app stores a large amount of video
+     in a cache which takes time to work through. It can take a few minutes for the app to start up again.
+  </p>
+
+</div>

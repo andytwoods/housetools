@@ -1,0 +1,59 @@
+{% load i18n %}
+<div class="mb-1">
+  <!-- Navbar with About moved to the right-hand side -->
+  <nav class="navbar navbar-expand-md navbar-light bg-light">
+    <div class="container-fluid">
+      <!-- Left-hand side content -->
+      <a class="navbar-brand" href="{% url 'home' %}">housetools</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarContent"
+        aria-controls="navbarContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <!-- Left-hand nav items -->
+        <ul class="navbar-nav me-auto">
+          {% if request.user.is_authenticated %}
+            <li class="nav-item active">
+              <button
+                class="btn btn-primary"
+                onclick="window.location.href='{% url 'home' %}'">
+                Learning Hub
+              </button>
+            </li>
+          {% endif %}
+        </ul>
+
+        <!-- Right-hand nav items -->
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'about' %}">About</a>
+          </li>
+          {% if request.user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'users:detail' request.user.pk %}">{% translate "My Profile" %}</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'account_logout' %}">{% translate "Sign Out" %}</a>
+            </li>
+          {% else %}
+            {% if ACCOUNT_ALLOW_REGISTRATION %}
+              <li class="nav-item">
+                <a id="sign-up-link" class="nav-link" href="{% url 'account_signup' %}">{% translate "Sign Up" %}</a>
+              </li>
+            {% endif %}
+            <li class="nav-item">
+              <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% translate "Sign In" %}</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>

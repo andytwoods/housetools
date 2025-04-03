@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+
+  <h1>Some mischievous tools</h1>
+  {% if user.is_authenticated %}
+
+    <div
+      hx-get="/update-youtube-status/"
+      hx-trigger="load"
+      hx-swap="outerHTML"
+    >
+      Loading YouTube status...
+    </div>
+
+  {% else %}
+    <h2 class="text-danger mt-4">Login to get access to tools!</h2>
+  {% endif %}
+{% endblock content %}

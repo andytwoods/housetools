@@ -1,16 +1,13 @@
-# ruff: noqa: ERA001, E501
-"""Base settings to build other settings files upon."""
-
 from pathlib import Path
 
 import environ
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
-# learnmusic/
-APPS_DIR = BASE_DIR / "learnmusic"
+# housetools/
+APPS_DIR = BASE_DIR / "housetools"
 env = environ.Env()
 
-READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
+READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=True)
 if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from .env
     env.read_env(str(BASE_DIR / ".env"))
@@ -91,8 +88,8 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "learnmusic.users",
-    "notes.apps.NotesConfig",
+    "housetools.users",
+    "dns.apps.DnsConfig",
     "config",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -101,7 +98,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {"sites": "learnmusic.contrib.sites.migrations"}
+MIGRATION_MODULES = {"sites": "housetools.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -113,7 +110,7 @@ AUTHENTICATION_BACKENDS = [
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
 AUTH_USER_MODEL = "users.User"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
-LOGIN_REDIRECT_URL = "notes-home"
+LOGIN_REDIRECT_URL = "home"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
 LOGIN_URL = "account_login"
 
@@ -152,8 +149,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
-    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
-    'config.settings.rollbar_custom_middleware.CustomRollbarNotifierMiddleware',
 ]
 
 # STATIC
@@ -198,7 +193,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "learnmusic.users.context_processors.allauth_settings",
+                "housetools.users.context_processors.allauth_settings",
             ],
         },
     },
@@ -287,13 +282,16 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 # https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "none"
 # https://docs.allauth.org/en/latest/account/configuration.html
-ACCOUNT_ADAPTER = "learnmusic.users.adapters.AccountAdapter"
+ACCOUNT_ADAPTER = "housetools.users.adapters.AccountAdapter"
 # https://docs.allauth.org/en/latest/account/forms.html
-ACCOUNT_FORMS = {"signup": "learnmusic.users.forms.UserSignupForm"}
+ACCOUNT_FORMS = {"signup": "housetools.users.forms.UserSignupForm"}
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
-SOCIALACCOUNT_ADAPTER = "learnmusic.users.adapters.SocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "housetools.users.adapters.SocialAccountAdapter"
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
-SOCIALACCOUNT_FORMS = {"signup": "learnmusic.users.forms.UserSocialSignupForm"}
+SOCIALACCOUNT_FORMS = {"signup": "housetools.users.forms.UserSocialSignupForm"}
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+NEXTDNS_PROFILE_ID = env.str('NEXTDNS_PROFILE_ID')
+NEXTDNS_API_TOKEN = env.str('NEXTDNS_API_TOKEN')

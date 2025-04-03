@@ -1,4 +1,4 @@
-# Translations for the LearnMusic project
+# Translations for the housetools project
 # Copyright (C) 2024 Andy T. Woods
 # Andy T. Woods <andytwoods@gmail.com>, 2024.
 #
