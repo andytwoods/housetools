@@ -5,5 +5,7 @@ from . import views
 
 urlpatterns = [
     path('update-youtube-status/', views.youtube_status, name='youtube-status'),
+    path('alexa/', views.alexa, name='alexa'),
+
 ]
 

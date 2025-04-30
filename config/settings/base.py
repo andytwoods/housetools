@@ -295,3 +295,5 @@ SOCIALACCOUNT_FORMS = {"signup": "housetools.users.forms.UserSocialSignupForm"}
 
 NEXTDNS_PROFILE_ID = env.str('NEXTDNS_PROFILE_ID')
 NEXTDNS_API_TOKEN = env.str('NEXTDNS_API_TOKEN')
+
+VOICE_MONKEY_TOKEN = env.str('VOICE_MONKEY_TOKEN')

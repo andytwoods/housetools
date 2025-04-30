@@ -1,0 +1,20 @@
+<div class="mt-4 border shadow bg-faded p-4">
+<h2>Alexa messaging</h2>
+  <form hx-post="/alexa/" class="mt-4">
+    <div class="mb-3">
+      <label for="room" class="form-label">Select Device:</label>
+      <select name="room" id="room" class="form-select" required>
+        <option value="" selected disabled>Choose a device</option>
+        {% for label, room in rooms.items %}
+          <option value="{{ label }}">{{ room }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="message" class="form-label">Message:</label>
+      <textarea name="message" id="message" class="form-control" rows="3"
+                placeholder="Enter your message here"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Send</button>
+  </form>
+</div>

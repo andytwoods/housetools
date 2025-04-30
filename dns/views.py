@@ -1,7 +1,9 @@
 import requests
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
 from django.template import loader
+from django.views.decorators.http import require_POST
 
 from dns.models import YouTube
 
@@ -16,8 +18,8 @@ HEADERS = {
 REMOVE = 'remove'
 ADD = 'add'
 
-def modify_blocklist(domain: str, action: str):
 
+def modify_blocklist(domain: str, action: str):
     if action == REMOVE:
         requests.delete(BLOCKLIST_URL + '/' + domain, headers=HEADERS)
     if action == ADD:
@@ -43,6 +45,7 @@ def check_enabled_in_configuration(youtube_urls_to_block):
 
     return True
 
+
 def youtube_status(request):
     youtube_urls_to_block = ['googlevideo.com', 'youtubei.googleapis.com', 'youtube.com']
 
@@ -53,9 +56,32 @@ def youtube_status(request):
         for domain in youtube_urls_to_block:
             modify_blocklist(domain, REMOVE if status else ADD)
 
-
-
     template = loader.get_template('dns/_youtube_status.html')
     rendered_template = template.render(context={'status': status})
     return HttpResponse(rendered_template)
+
+
+def alexa(request):
+    rooms = {
+        'ROBIN': "robinroom",
+        'RYAN': "ryanroom",
+        'LIVINGROOM': "livingroom"
+    }
+
+    if request.POST.get('first', 'false') == 'true':
+        return render(request, 'dns/_alexa.html',
+               context = {'rooms': rooms})
+
+    API_URL = "https://api-v2.voicemonkey.io/announcement"
+
+    room = request.POST.get('room')
+    message = request.POST.get('message')
+    requests.post(
+        API_URL,
+        headers={"Authorization": settings.VOICE_MONKEY_TOKEN, "Content-Type": "application/json"},
+        json={"device": rooms[room], "text": message},
+        timeout=5
+    )
+
+    return HttpResponse(status=204)
 
