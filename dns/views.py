@@ -78,6 +78,8 @@ def alexa(request):
     room = request.POST.get('room')
     message = request.POST.get('message')
     sound_url = static('alexa_tone.mp3')
+    sound_url = request.build_absolute_uri(sound_url)
+
     requests.post(
         API_URL,
         headers={"Authorization": settings.VOICE_MONKEY_TOKEN, "Content-Type": "application/json"},
