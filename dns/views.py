@@ -3,6 +3,7 @@ from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template import loader
+from django.templatetags.static import static
 from django.views.decorators.http import require_POST
 
 from dns.models import YouTube
@@ -76,10 +77,19 @@ def alexa(request):
 
     room = request.POST.get('room')
     message = request.POST.get('message')
+    sound_url = static('alexa_tone.mp3')
     requests.post(
         API_URL,
         headers={"Authorization": settings.VOICE_MONKEY_TOKEN, "Content-Type": "application/json"},
-        json={"device": rooms[room], "text": message},
+        json={"device": rooms[room],
+              "text": (
+                  "<speak>"
+                  f"<audio src='{sound_url}'/>"
+                  "<break time='350ms'/>"
+                  f"{message}"
+                  "</speak>"
+              )
+              },
         timeout=5
     )
 
