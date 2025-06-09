@@ -66,6 +66,7 @@ def alexa(request):
     rooms = {
         'ROBIN': "robinroom",
         'RYAN': "ryanroom",
+        'PARENTS': "parentsroom",
         'LIVINGROOM': "livingroom"
     }
 
@@ -78,16 +79,24 @@ def alexa(request):
     room = request.POST.get('room')
     message = request.POST.get('message')
 
-    sound_url = static('alexa_tone.mp3')
-    sound_url = request.build_absolute_uri(sound_url)
+    sound_url = None
+    if request.POST.get('chime'):
+        sound_url = static('alexa_tone.mp3')
+        sound_url = request.build_absolute_uri(sound_url)
+
+    device = rooms[room]
+
+    if device == 'ryanroom':
+        device += '2'
+    elif device == 'parentsroom':
+        device = 'ryanroom'
 
     requests.post(
         API_URL,
         headers={"Authorization": settings.VOICE_MONKEY_TOKEN, "Content-Type": "application/json"},
-        json={"device": rooms[room],
+        json={"device": device,
               "text": message,
               "audio": sound_url
-
               },
         timeout=5
     )
