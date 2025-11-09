@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"               # where requirements.txt lives
+    schedule:
+      interval: "weekly"         # "daily", "weekly", or "monthly"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    allow:
+      - dependency-type: "direct"   # or "all"
+    ignore:
+      # example: hold back a major change
+      - dependency-name: "Django"
+        update-types: ["version-update:semver-major"]
+    groups:
+      minor-and-patch:
+        applies-to: security-updates-or-version-updates
+        update-types:
+          - "minor"
+          - "patch"
