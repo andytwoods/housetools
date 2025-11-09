@@ -30,5 +30,7 @@
 
   {% else %}
     <h2 class="text-danger mt-4">Login to get access to tools!</h2>
+    <a class="btn btn-primary" href="{% url 'account_login' %}">Sign in</a>
+
   {% endif %}
 {% endblock content %}
