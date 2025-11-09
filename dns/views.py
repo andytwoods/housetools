@@ -84,6 +84,10 @@ def alexa(request):
         sound_url = static('alexa_tone.mp3')
         sound_url = request.build_absolute_uri(sound_url)
 
+    if request.POST.get('alarm'):
+        sound_url = static('long_alarm.mp3')
+        sound_url = request.build_absolute_uri(sound_url)
+
     device = rooms[room]
 
     if device == 'ryanroom':
