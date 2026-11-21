@@ -332,3 +332,4 @@ housetools/media/
 .envs/*
 !.envs/.local/
 .aider*
+.env.appliku
