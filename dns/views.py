@@ -17,6 +17,15 @@ logger = logging.getLogger(__name__)
 
 VOICE_MONKEY_ANNOUNCE_URL = "https://api-v3.voicemonkey.io/announce"
 
+# Room -> Voice Monkey v3 speaker id (GET https://api-v3.voicemonkey.io/devices).
+# Ryan's Echo is "ryanroom2"; the parents' Echo kept the old "ryanroom" name.
+VOICE_MONKEY_DEVICES = {
+    'ROBIN': "robinroom-nw8uu",
+    'RYAN': "ryanroom2-62kme",
+    'PARENTS': "ryanroom-374ee",
+    'LIVINGROOM': "livingroom-2352t",
+}
+
 BLOCKLIST_URL = f'https://api.nextdns.io/profiles/{settings.NEXTDNS_PROFILE_ID}/denylist'
 
 # Headers for authorization
@@ -96,13 +105,9 @@ def alexa(request):
     if request.POST.get('alarm'):
         sound_url = request.build_absolute_uri(static('long_alarm.mp3'))
 
-    device = rooms.get(room)
+    device = VOICE_MONKEY_DEVICES.get(room)
     if device is None:
         return HttpResponse('<p class="text-danger">Pick a device.</p>')
-    if device == 'ryanroom':
-        device += '2'
-    elif device == 'parentsroom':
-        device = 'ryanroom'
 
     payload = {"token": settings.VOICE_MONKEY_TOKEN, "device": device}
     if message:
