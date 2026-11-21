@@ -7,7 +7,15 @@ from django.templatetags.static import static
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
+import logging
+
+from django.utils.html import escape
+
 from dns.models import YouTube
+
+logger = logging.getLogger(__name__)
+
+VOICE_MONKEY_ANNOUNCE_URL = "https://api-v3.voicemonkey.io/announce"
 
 BLOCKLIST_URL = f'https://api.nextdns.io/profiles/{settings.NEXTDNS_PROFILE_ID}/denylist'
 
@@ -79,36 +87,37 @@ def alexa(request):
         return render(request, 'dns/_alexa.html',
                context = {'rooms': rooms})
 
-    API_URL = "https://api-v2.voicemonkey.io/announcement"
-
     room = request.POST.get('room')
     message = request.POST.get('message')
 
     sound_url = None
     if request.POST.get('chime'):
-        sound_url = static('alexa_tone.mp3')
-        sound_url = request.build_absolute_uri(sound_url)
-
+        sound_url = request.build_absolute_uri(static('alexa_tone.mp3'))
     if request.POST.get('alarm'):
-        sound_url = static('long_alarm.mp3')
-        sound_url = request.build_absolute_uri(sound_url)
+        sound_url = request.build_absolute_uri(static('long_alarm.mp3'))
 
-    device = rooms[room]
-
+    device = rooms.get(room)
+    if device is None:
+        return HttpResponse('<p class="text-danger">Pick a device.</p>')
     if device == 'ryanroom':
         device += '2'
     elif device == 'parentsroom':
         device = 'ryanroom'
 
-    requests.post(
-        API_URL,
-        headers={"Authorization": settings.VOICE_MONKEY_TOKEN, "Content-Type": "application/json"},
-        json={"device": device,
-              "text": message,
-              "audio": sound_url
-              },
-        timeout=5
-    )
+    payload = {"token": settings.VOICE_MONKEY_TOKEN, "device": device}
+    if message:
+        payload["speech"] = message
+    if sound_url:
+        payload["audio"] = sound_url
 
-    return HttpResponse(status=204)
+    try:
+        response = requests.post(VOICE_MONKEY_ANNOUNCE_URL, json=payload, timeout=10)
+        result = response.json()
+    except (requests.RequestException, ValueError) as e:
+        logger.error("Voice Monkey request failed: %s", e)
+        return HttpResponse(f'<p class="text-danger">Voice Monkey unreachable: {escape(str(e))}</p>')
 
+    if response.ok and result.get("success"):
+        return HttpResponse(f'<p class="text-success">Sent to {escape(device)}.</p>')
+    logger.error("Voice Monkey error %s: %s", response.status_code, result)
+    return HttpResponse(f'<p class="text-danger">Voice Monkey said: {escape(str(result.get("error", result)))}</p>')
