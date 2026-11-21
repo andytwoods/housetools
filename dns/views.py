@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template import loader
 from django.templatetags.static import static
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
 from dns.models import YouTube
@@ -47,6 +48,8 @@ def check_enabled_in_configuration(youtube_urls_to_block):
     return True
 
 
+@login_required
+@require_POST
 def youtube_status(request):
     youtube_urls_to_block = ['googlevideo.com', 'youtubei.googleapis.com', 'youtube.com']
 
@@ -62,6 +65,8 @@ def youtube_status(request):
     return HttpResponse(rendered_template)
 
 
+@login_required
+@require_POST
 def alexa(request):
     rooms = {
         'ROBIN': "robinroom",
