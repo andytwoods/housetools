@@ -17,7 +17,7 @@ RUN DJANGO_SECRET_KEY=build-only DATABASE_URL=sqlite:////tmp/build.db \
     && rm -f /tmp/build.db
 
 # Don't run the app as root.
-RUN useradd --system --no-create-home --uid 10001 app
+RUN useradd --system --create-home --uid 10001 app
 USER app
 
 EXPOSE 8000
