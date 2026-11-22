@@ -56,14 +56,18 @@ class Sender {
     }
 
     function onResponse(code as Number, data as Dictionary or String or Null) as Void {
-        if (code == 200) {
-            _view.setText("Done");
+        if (code == 200 && data instanceof Dictionary) {
+            if (data["ok"] == true) {
+                _view.setText("Done");
+            } else {
+                _view.setText("Failed:\n" + data["error"]);
+            }
         } else if (code == 403) {
             _view.setText("Bad token");
-        } else if (code < 0) {
-            _view.setText("No phone link\n(" + code + ")");
+        } else if (code == -104) {
+            _view.setText("No phone link");
         } else {
-            _view.setText("Failed (" + code + ")");
+            _view.setText("Error " + code);
         }
     }
 }

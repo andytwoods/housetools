@@ -101,3 +101,10 @@ def test_watch_plays_alarm_in_ryans_room(post, rf, watch_settings):
     payload = post.call_args.kwargs["json"]
     assert payload["device"] == "ryanroom2-62kme"
     assert payload["audio"].endswith("long_alarm.mp3")
+
+
+def test_watch_reports_missing_sound_file(rf, watch_settings):
+    with mock.patch("dns.views.finders.find", return_value=None):
+        r = _watch(rf, "/watch/", {"room": "RYAN", "action": "benny"}, HTTP_AUTHORIZATION="Bearer secret")
+    assert r.status_code == 200
+    assert json.loads(r.content) == {"ok": False, "error": "benny_hill.mp3 missing"}

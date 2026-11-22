@@ -3,6 +3,7 @@ from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template import loader
+from django.contrib.staticfiles import finders
 from django.templatetags.static import static
 from django.contrib.auth.decorators import login_required
 from django.utils.crypto import constant_time_compare
@@ -163,9 +164,13 @@ def watch(request):
     if device is None or sound is None:
         return JsonResponse({'ok': False, 'error': 'bad room or action'}, status=400)
 
+    # Failures go back as 200 + ok:false: Appliku's proxy replaces 5xx bodies with HTML,
+    # which the watch can't parse, so it would never see the message.
+    if finders.find(sound) is None:
+        return JsonResponse({'ok': False, 'error': f'{sound} missing'})
     error = voice_monkey_announce(device, audio=request.build_absolute_uri(static(sound)))
     if error:
-        return JsonResponse({'ok': False, 'error': error}, status=502)
+        return JsonResponse({'ok': False, 'error': error[:60]})
     return JsonResponse({'ok': True})
 
 
