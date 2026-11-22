@@ -142,11 +142,12 @@ def voice_monkey_announce(device, speech=None, audio=None):
     return f"Voice Monkey said: {result.get('error', result)}"
 
 
-# Sounds the watch app can play, by action name (files in housetools/static/).
+# Sounds the watch app can play, by action name: a file in housetools/static/,
+# or a full https URL for tracks that shouldn't sit in this public repo.
 WATCH_SOUNDS = {
     'alarm': 'long_alarm.mp3',
     'chime': 'alexa_tone.mp3',
-    'benny': 'benny_hill.mp3',
+    'benny': 'https://televisiontunes.com/uploads/audio/Benny%20Hill%20Show.mp3',
 }
 
 
@@ -166,9 +167,13 @@ def watch(request):
 
     # Failures go back as 200 + ok:false: Appliku's proxy replaces 5xx bodies with HTML,
     # which the watch can't parse, so it would never see the message.
-    if finders.find(sound) is None:
+    if sound.startswith('https://'):
+        audio = sound
+    elif finders.find(sound) is None:
         return JsonResponse({'ok': False, 'error': f'{sound} missing'})
-    error = voice_monkey_announce(device, audio=request.build_absolute_uri(static(sound)))
+    else:
+        audio = request.build_absolute_uri(static(sound))
+    error = voice_monkey_announce(device, audio=audio)
     if error:
         return JsonResponse({'ok': False, 'error': error[:60]})
     return JsonResponse({'ok': True})

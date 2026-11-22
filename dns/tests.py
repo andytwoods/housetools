@@ -105,6 +105,13 @@ def test_watch_plays_alarm_in_ryans_room(post, rf, watch_settings):
 
 def test_watch_reports_missing_sound_file(rf, watch_settings):
     with mock.patch("dns.views.finders.find", return_value=None):
-        r = _watch(rf, "/watch/", {"room": "RYAN", "action": "benny"}, HTTP_AUTHORIZATION="Bearer secret")
+        r = _watch(rf, "/watch/", {"room": "RYAN", "action": "alarm"}, HTTP_AUTHORIZATION="Bearer secret")
     assert r.status_code == 200
-    assert json.loads(r.content) == {"ok": False, "error": "benny_hill.mp3 missing"}
+    assert json.loads(r.content) == {"ok": False, "error": "long_alarm.mp3 missing"}
+
+
+@mock.patch("dns.views.requests.post")
+def test_watch_benny_uses_external_url(post, rf, watch_settings):
+    post.return_value = _response(body={"success": True})
+    _watch(rf, "/watch/", {"room": "RYAN", "action": "benny"}, HTTP_AUTHORIZATION="Bearer secret")
+    assert post.call_args.kwargs["json"]["audio"].startswith("https://televisiontunes.com/")
