@@ -24,6 +24,7 @@ VOICE_MONKEY_DEVICES = {
     'RYAN': "ryanroom2-62kme",
     'PARENTS': "ryanroom-374ee",
     'LIVINGROOM': "livingroom-2352t",
+    'KITCHEN': "kitchen-3ebuj",
 }
 
 BLOCKLIST_URL = f'https://api.nextdns.io/profiles/{settings.NEXTDNS_PROFILE_ID}/denylist'
@@ -89,7 +90,8 @@ def alexa(request):
         'ROBIN': "robinroom",
         'RYAN': "ryanroom",
         'PARENTS': "parentsroom",
-        'LIVINGROOM': "livingroom"
+        'LIVINGROOM': "livingroom",
+        'KITCHEN': "kitchen",
     }
 
     if request.POST.get('first', 'false') == 'true':
