@@ -5,6 +5,8 @@ from django.shortcuts import render
 from django.template import loader
 from django.templatetags.static import static
 from django.contrib.auth.decorators import login_required
+from django.utils.crypto import constant_time_compare
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 import logging
@@ -112,23 +114,59 @@ def alexa(request):
     if device is None:
         return HttpResponse('<p class="text-danger">Pick a device.</p>')
 
+    error = voice_monkey_announce(device, speech=message, audio=sound_url)
+    if error is None:
+        return HttpResponse(f'<p class="text-success">Sent to {escape(device)}.</p>')
+    return HttpResponse(f'<p class="text-danger">{escape(error)}</p>')
+
+
+def voice_monkey_announce(device, speech=None, audio=None):
+    """Announce on a Voice Monkey speaker. Returns None on success, else an error message."""
     payload = {"token": settings.VOICE_MONKEY_TOKEN, "device": device}
-    if message:
-        payload["speech"] = message
-    if sound_url:
-        payload["audio"] = sound_url
+    if speech:
+        payload["speech"] = speech
+    if audio:
+        payload["audio"] = audio
 
     try:
         response = requests.post(VOICE_MONKEY_ANNOUNCE_URL, json=payload, timeout=10)
         result = response.json()
     except (requests.RequestException, ValueError) as e:
         logger.error("Voice Monkey request failed: %s", e)
-        return HttpResponse(f'<p class="text-danger">Voice Monkey unreachable: {escape(str(e))}</p>')
+        return f"Voice Monkey unreachable: {e}"
 
     if response.ok and result.get("success"):
-        return HttpResponse(f'<p class="text-success">Sent to {escape(device)}.</p>')
+        return None
     logger.error("Voice Monkey error %s: %s", response.status_code, result)
-    return HttpResponse(f'<p class="text-danger">Voice Monkey said: {escape(str(result.get("error", result)))}</p>')
+    return f"Voice Monkey said: {result.get('error', result)}"
+
+
+# Sounds the watch app can play, by action name (files in housetools/static/).
+WATCH_SOUNDS = {
+    'alarm': 'long_alarm.mp3',
+    'chime': 'alexa_tone.mp3',
+    'benny': 'benny_hill.mp3',
+}
+
+
+@csrf_exempt
+@require_POST
+def watch(request):
+    """Garmin watch app: play a sound on a room's Echo. Auth is a shared bearer token."""
+    expected = settings.WATCH_TOKEN
+    supplied = request.headers.get('Authorization', '').removeprefix('Bearer ').strip()
+    if not expected or not constant_time_compare(supplied, expected):
+        return JsonResponse({'ok': False, 'error': 'bad token'}, status=403)
+
+    device = VOICE_MONKEY_DEVICES.get(request.POST.get('room', ''))
+    sound = WATCH_SOUNDS.get(request.POST.get('action', ''))
+    if device is None or sound is None:
+        return JsonResponse({'ok': False, 'error': 'bad room or action'}, status=400)
+
+    error = voice_monkey_announce(device, audio=request.build_absolute_uri(static(sound)))
+    if error:
+        return JsonResponse({'ok': False, 'error': error}, status=502)
+    return JsonResponse({'ok': True})
 
 
 @login_required

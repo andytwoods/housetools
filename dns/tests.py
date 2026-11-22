@@ -67,3 +67,37 @@ def test_csrf_fetched_when_cookie_lacks_it(get, post):
 def test_empty_command_rejected():
     with pytest.raises(AlexaError, match="Type a command"):
         _client().text_command(KITCHEN, " ?! ")
+
+
+def _watch(rf, path, data, **headers):
+    from dns.views import watch
+    return watch(rf.post(path, data, **headers))
+
+
+@pytest.fixture
+def watch_settings(settings):
+    settings.WATCH_TOKEN = "secret"
+    settings.VOICE_MONKEY_TOKEN = "vm"
+    settings.STORAGES = {**settings.STORAGES,
+                         "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}}
+    return settings
+
+
+def test_watch_rejects_bad_token(rf, watch_settings):
+    r = _watch(rf, "/watch/", {"room": "RYAN", "action": "alarm"}, HTTP_AUTHORIZATION="Bearer nope")
+    assert r.status_code == 403
+
+
+def test_watch_rejects_unknown_room(rf, watch_settings):
+    r = _watch(rf, "/watch/", {"room": "GARAGE", "action": "alarm"}, HTTP_AUTHORIZATION="Bearer secret")
+    assert r.status_code == 400
+
+
+@mock.patch("dns.views.requests.post")
+def test_watch_plays_alarm_in_ryans_room(post, rf, watch_settings):
+    post.return_value = _response(body={"success": True})
+    r = _watch(rf, "/watch/", {"room": "RYAN", "action": "alarm"}, HTTP_AUTHORIZATION="Bearer secret")
+    assert json.loads(r.content) == {"ok": True}
+    payload = post.call_args.kwargs["json"]
+    assert payload["device"] == "ryanroom2-62kme"
+    assert payload["audio"].endswith("long_alarm.mp3")

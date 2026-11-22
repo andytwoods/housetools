@@ -301,3 +301,6 @@ VOICE_MONKEY_TOKEN = env.str('VOICE_MONKEY_TOKEN', default='')
 ALEXA_COOKIE = env.str('ALEXA_COOKIE', default='')
 ALEXA_BASE_URL = env.str('ALEXA_BASE_URL', default='https://alexa.amazon.co.uk')
 ALEXA_LOCALE = env.str('ALEXA_LOCALE', default='en-GB')
+
+# Shared secret the Garmin watch app sends as "Authorization: Bearer <token>".
+WATCH_TOKEN = env.str('WATCH_TOKEN', default='')
