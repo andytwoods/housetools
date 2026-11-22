@@ -28,6 +28,15 @@
       Loading Alexa stuff...
     </div>
 
+    <div
+      hx-post="/alexa-command/"
+      hx-trigger="load"
+      hx-swap="outerHTML"
+      hx-vals='{"first": true}'
+    >
+      Loading Alexa voice commands...
+    </div>
+
   {% else %}
     <h2 class="text-danger mt-4">Login to get access to tools!</h2>
     <a class="btn btn-primary" href="{% url 'account_login' %}">Sign in</a>

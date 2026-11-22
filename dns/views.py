@@ -11,6 +11,7 @@ import logging
 
 from django.utils.html import escape
 
+from dns.alexa_commands import AlexaClient, AlexaError
 from dns.models import YouTube
 
 logger = logging.getLogger(__name__)
@@ -128,3 +129,28 @@ def alexa(request):
         return HttpResponse(f'<p class="text-success">Sent to {escape(device)}.</p>')
     logger.error("Voice Monkey error %s: %s", response.status_code, result)
     return HttpResponse(f'<p class="text-danger">Voice Monkey said: {escape(str(result.get("error", result)))}</p>')
+
+
+@login_required
+@require_POST
+def alexa_command(request):
+    """Type a command; the chosen Echo acts on it and answers out loud."""
+    try:
+        client = AlexaClient()
+        devices = client.devices()
+        if request.POST.get('first', 'false') == 'true':
+            return render(request, 'dns/_alexa_command.html', context={'devices': devices})
+
+        device = devices.get(request.POST.get('device', ''))
+        if device is None:
+            return HttpResponse('<p class="text-danger">Pick an Echo.</p>')
+        command = request.POST.get('command', '')
+        client.text_command(device, command)
+    except (AlexaError, requests.RequestException) as e:
+        logger.error("Alexa command failed: %s", e)
+        message = f'<p class="text-danger">{escape(str(e))}</p>'
+        if request.POST.get('first', 'false') == 'true':
+            return render(request, 'dns/_alexa_command.html', context={'error': str(e)})
+        return HttpResponse(message)
+    return HttpResponse(f'<p class="text-success">Sent "{escape(command)}" to {escape(device["accountName"])}. '
+                        f'Listen for the answer.</p>')

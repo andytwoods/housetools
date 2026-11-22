@@ -295,3 +295,9 @@ NEXTDNS_PROFILE_ID = env.str('NEXTDNS_PROFILE_ID')
 NEXTDNS_API_TOKEN = env.str('NEXTDNS_API_TOKEN', default='')
 
 VOICE_MONKEY_TOKEN = env.str('VOICE_MONKEY_TOKEN', default='')
+
+# Unofficial Alexa web API for typed voice commands (dns/alexa_commands.py).
+# ALEXA_COOKIE is the full Cookie header of a logged-in amazon.co.uk session.
+ALEXA_COOKIE = env.str('ALEXA_COOKIE', default='')
+ALEXA_BASE_URL = env.str('ALEXA_BASE_URL', default='https://alexa.amazon.co.uk')
+ALEXA_LOCALE = env.str('ALEXA_LOCALE', default='en-GB')
