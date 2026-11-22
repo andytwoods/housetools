@@ -1,4 +1,3 @@
 <properties>
     <property id="serverUrl" type="string">https://housetools.applikuapp.com/watch/</property>
-    <property id="token" type="string"></property>
 </properties>

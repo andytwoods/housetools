@@ -37,7 +37,7 @@ class Sender {
         var url = Application.Properties.getValue("serverUrl") as String;
         var token = Application.Properties.getValue("token") as String;
         if (token == null || token.length() == 0) {
-            _view.setText("Set token in\nGarmin Connect");
+            _view.setText("No token\nin build");
             return;
         }
         Communications.makeWebRequest(

@@ -1,1 +1,3 @@
 project.manifest = manifest.xml
+# secrets/ is gitignored; it holds the WATCH_TOKEN property (see README.md).
+base.resourcePath = resources;secrets

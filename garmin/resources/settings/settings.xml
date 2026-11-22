@@ -1,8 +1,0 @@
-<settings>
-    <setting propertyKey="@Properties.serverUrl" title="@Strings.ServerUrlTitle">
-        <settingConfig type="alphaNumeric"/>
-    </setting>
-    <setting propertyKey="@Properties.token" title="@Strings.TokenTitle">
-        <settingConfig type="password"/>
-    </setting>
-</settings>
