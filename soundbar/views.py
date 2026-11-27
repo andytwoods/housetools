@@ -4,12 +4,14 @@ import secrets
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.crypto import constant_time_compare
+from django.utils.html import escape
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -61,6 +63,17 @@ def _back_to(request):
     return redirect("soundbar:status")
 
 
+def _said(request, level, text):
+    """Answer htmx in place; fall back to a message and a redirect without it."""
+    if getattr(request, "htmx", False):
+        colour = {"success": "text-success", "error": "text-danger"}.get(
+            level, "text-muted",
+        )
+        return HttpResponse(f'<p class="{colour} mb-0">{escape(text)}</p>')
+    getattr(messages, level)(request, text)
+    return _back_to(request)
+
+
 @login_required
 @require_POST
 def apply_profile(request, pk):
@@ -69,18 +82,15 @@ def apply_profile(request, pk):
         device_id = control.soundbar_device_id()
     except Exception as error:
         logger.exception("Could not find the soundbar")
-        messages.error(request, f"Could not reach the soundbar: {error}")
-        return _back_to(request)
+        return _said(request, "error", f"Could not reach the soundbar: {error}")
 
     done, failed = profile.apply(device_id)
-    if done:
-        messages.success(request, f"{profile}: sent {', '.join(done)}.")
     if failed:
         label, reason = failed
-        messages.error(request, f"Stopped at {label}: {reason}")
-    elif not done:
-        messages.info(request, f"{profile} has nothing set to send.")
-    return _back_to(request)
+        return _said(request, "error", f"{profile}: stopped at {label}. {reason}")
+    if not done:
+        return _said(request, "info", f"{profile} has nothing set to send.")
+    return _said(request, "success", f"{profile} applied.")
 
 
 @login_required

@@ -7,15 +7,18 @@
 
     <div class="d-flex flex-wrap gap-2 mt-3">
       {% for profile in profiles %}
-        <form method="post" action="{% url 'soundbar:apply-profile' profile.pk %}">
-          {% csrf_token %}
-          <input type="hidden" name="next" value="{{ request.path }}">
-          <button type="submit" class="btn btn-primary" title="{{ profile.summary }}"
-                  {% if not auth.is_connected %}disabled{% endif %}>
-            {{ profile.name }}
-          </button>
-        </form>
+        <button type="button" class="btn btn-primary"
+                title="{{ profile.summary }}"
+                hx-post="{% url 'soundbar:apply-profile' profile.pk %}"
+                hx-target="#soundbar-result"
+                hx-swap="innerHTML"
+                hx-disabled-elt="this"
+                {% if not auth.is_connected %}disabled{% endif %}>
+          {{ profile.name }}
+        </button>
       {% endfor %}
     </div>
+
+    <div id="soundbar-result" class="mt-3"></div>
   </div>
 {% endif %}
