@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static soundbar_tags %}
 
 {% block content %}
 
@@ -9,6 +9,8 @@
     <button type="button" class="btn btn-primary btn-sm" onclick="location.reload();">
       <i class="fas fa-sync-alt"></i> Refresh
     </button>
+
+    {% soundbar_profiles %}
 
     <div
       hx-post="/update-youtube-status/"

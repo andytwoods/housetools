@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.crypto import constant_time_compare
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -48,6 +49,18 @@ def status(request):
     )
 
 
+def _back_to(request):
+    """Return to the page the button was pressed on, if it is one of ours."""
+    where = request.POST.get("next", "")
+    if where and url_has_allowed_host_and_scheme(
+        where,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return redirect(where)
+    return redirect("soundbar:status")
+
+
 @login_required
 @require_POST
 def apply_profile(request, pk):
@@ -57,7 +70,7 @@ def apply_profile(request, pk):
     except Exception as error:
         logger.exception("Could not find the soundbar")
         messages.error(request, f"Could not reach the soundbar: {error}")
-        return redirect("soundbar:status")
+        return _back_to(request)
 
     done, failed = profile.apply(device_id)
     if done:
@@ -67,7 +80,7 @@ def apply_profile(request, pk):
         messages.error(request, f"Stopped at {label}: {reason}")
     elif not done:
         messages.info(request, f"{profile} has nothing set to send.")
-    return redirect("soundbar:status")
+    return _back_to(request)
 
 
 @login_required

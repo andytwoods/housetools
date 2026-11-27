@@ -1,35 +1,12 @@
 {% extends "base.html" %}
+{% load soundbar_tags %}
 
 {% block title %}Soundbar{% endblock title %}
 
 {% block content %}
   <h1 class="mt-4">Soundbar</h1>
 
-  {% if profiles %}
-    <div class="row g-3 mt-1">
-      {% for profile in profiles %}
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="border shadow-sm p-3 h-100 d-flex flex-column">
-            <h2 class="h5">{{ profile.name }}</h2>
-            <ul class="small text-muted flex-grow-1 ps-3">
-              {% for label, action in profile.steps %}
-                <li>{{ label }}</li>
-              {% empty %}
-                <li>nothing set</li>
-              {% endfor %}
-            </ul>
-            <form method="post" action="{% url 'soundbar:apply-profile' profile.pk %}">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-primary w-100"
-                      {% if not auth.is_connected %}disabled{% endif %}>
-                Apply
-              </button>
-            </form>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
+  {% soundbar_profiles %}
 
   <h2 class="h5 mt-5">SmartThings</h2>
   <p>{{ auth }}</p>
