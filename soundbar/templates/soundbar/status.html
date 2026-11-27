@@ -5,16 +5,43 @@
 {% block content %}
   <h1 class="mt-4">Soundbar</h1>
 
-  <p>SmartThings: <strong>{{ auth }}</strong></p>
+  {% if profiles %}
+    <div class="row g-3 mt-1">
+      {% for profile in profiles %}
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="border shadow-sm p-3 h-100 d-flex flex-column">
+            <h2 class="h5">{{ profile.name }}</h2>
+            <ul class="small text-muted flex-grow-1 ps-3">
+              {% for label, action in profile.steps %}
+                <li>{{ label }}</li>
+              {% empty %}
+                <li>nothing set</li>
+              {% endfor %}
+            </ul>
+            <form method="post" action="{% url 'soundbar:apply-profile' profile.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary w-100"
+                      {% if not auth.is_connected %}disabled{% endif %}>
+                Apply
+              </button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
 
-  <p>
-    <a class="btn btn-primary" href="{% url 'soundbar:connect' %}">
-      {% if auth.is_connected %}Reconnect{% else %}Connect SmartThings{% endif %}
-    </a>
-  </p>
+  <h2 class="h5 mt-5">SmartThings</h2>
+  <p>{{ auth }}</p>
+
+  {% if not auth.is_connected %}
+    <p class="text-muted">
+      Install the housetools automation in the SmartThings app on your phone.
+      That is what hands this site its tokens.
+    </p>
+  {% endif %}
 
   {% if devices %}
-    <h2 class="h4 mt-4">Devices on the account</h2>
     <table class="table table-sm">
       <tbody>
         {% for label, device_id in devices %}
@@ -27,8 +54,9 @@
     </table>
   {% endif %}
 
-  <p class="small text-muted mt-4">
-    The redirect URI registered with SmartThings must be exactly
-    <code>{{ redirect_uri }}</code>
+  <p class="small text-muted">
+    Nothing here can be read back from the soundbar: SmartThings reports null
+    for every sound setting. A profile is what gets sent, not what the bar is
+    set to, so it goes out of date as soon as anyone uses the remote.
   </p>
 {% endblock content %}
