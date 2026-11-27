@@ -22,6 +22,7 @@ urlpatterns = [
     path("users/", include("housetools.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     path("", include('dns.urls')),
+    path("soundbar/", include('soundbar.urls')),
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]

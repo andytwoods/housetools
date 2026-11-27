@@ -90,6 +90,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "housetools.users",
     "dns.apps.DnsConfig",
+    "soundbar.apps.SoundbarConfig",
     "config",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -304,3 +305,10 @@ ALEXA_LOCALE = env.str('ALEXA_LOCALE', default='en-GB')
 
 # Shared secret the Garmin watch app sends as "Authorization: Bearer <token>".
 WATCH_TOKEN = env.str('WATCH_TOKEN', default='')
+
+# SmartThings OAuth-In app, for the Samsung soundbar's sound settings.
+# Samsung cut personal access tokens to 24 hours on 30 December 2024, so OAuth
+# with a refresh token is the only route that keeps working. Created with
+# `smartthings apps:create`; the secret is shown once, at creation.
+SMARTTHINGS_CLIENT_ID = env.str('SMARTTHINGS_CLIENT_ID', default='')
+SMARTTHINGS_CLIENT_SECRET = env.str('SMARTTHINGS_CLIENT_SECRET', default='')

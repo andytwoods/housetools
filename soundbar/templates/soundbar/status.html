@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Soundbar{% endblock title %}
+
+{% block content %}
+  <h1 class="mt-4">Soundbar</h1>
+
+  <p>SmartThings: <strong>{{ auth }}</strong></p>
+
+  <p>
+    <a class="btn btn-primary" href="{% url 'soundbar:connect' %}">
+      {% if auth.is_connected %}Reconnect{% else %}Connect SmartThings{% endif %}
+    </a>
+  </p>
+
+  {% if devices %}
+    <h2 class="h4 mt-4">Devices on the account</h2>
+    <table class="table table-sm">
+      <tbody>
+        {% for label, device_id in devices %}
+          <tr>
+            <td>{{ label }}</td>
+            <td><code>{{ device_id }}</code></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  <p class="small text-muted mt-4">
+    The redirect URI registered with SmartThings must be exactly
+    <code>{{ redirect_uri }}</code>
+  </p>
+{% endblock content %}
