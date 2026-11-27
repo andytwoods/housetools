@@ -27,6 +27,8 @@ build_settings:
         property: private_connection_url
     - name: DJANGO_DEBUG
       value: "0"
+    - name: TZ
+      value: "Europe/London"
     - name: WEB_CONCURRENCY
       value: "2"
 
@@ -37,5 +39,9 @@ databases:
 services:
   web:
     command: sh run.sh
+  worker:
+    # The Huey consumer. Without it nothing scheduled runs, including the
+    # nightly soundbar reset in soundbar/tasks.py.
+    command: python manage.py run_huey
   release:
     command: sh release.sh

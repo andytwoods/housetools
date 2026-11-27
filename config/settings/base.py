@@ -85,6 +85,7 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount",
     'widget_tweaks',
     "django_htmx",
+    "huey.contrib.djhuey",
 ]
 
 LOCAL_APPS = [
@@ -305,6 +306,28 @@ ALEXA_LOCALE = env.str('ALEXA_LOCALE', default='en-GB')
 
 # Shared secret the Garmin watch app sends as "Authorization: Bearer <token>".
 WATCH_TOKEN = env.str('WATCH_TOKEN', default='')
+
+# Huey, for the scheduled jobs (soundbar/tasks.py).
+#
+# SqliteHuey, not Redis: the only jobs are periodic, so the consumer both
+# schedules and runs them and nothing needs to be queued from the web
+# container. That means no broker to run and nothing shared between
+# containers. If anything ever needs to be queued from a request, this has to
+# become Redis first.
+#
+# The consumer runs as its own process: see the `worker` service in
+# appliku.yml. Without that process nothing is scheduled at all.
+HUEY = {
+    "huey_class": "huey.SqliteHuey",
+    "name": "housetools",
+    "filename": env.str("HUEY_DB", default="/tmp/huey.sqlite3"),  # noqa: S108
+    "immediate": env.bool("HUEY_IMMEDIATE", default=False),
+    "consumer": {
+        "workers": 1,
+        "worker_type": "thread",
+        "periodic": True,
+    },
+}
 
 # SmartThings OAuth-In app, for the Samsung soundbar's sound settings.
 # Samsung cut personal access tokens to 24 hours on 30 December 2024, so OAuth

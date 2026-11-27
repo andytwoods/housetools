@@ -19,3 +19,4 @@ pytest~=9.2.0
 django-debug-toolbar~=6.1.0
 factory_boy~=3.3.1
 pytest-django~=4.14.0
+huey==3.5.4  # https://github.com/coleifer/huey

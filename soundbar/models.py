@@ -128,12 +128,17 @@ class SoundProfile(models.Model):
         """One line, for the button's tooltip."""
         return ", ".join(label for label, _ in self.steps()) or "nothing set"
 
-    def steps(self):
-        """What applying this profile would send, in order."""
+    def steps(self, *, power=True):
+        """What applying this profile would send, in order.
+
+        power=False leaves the soundbar's power alone, which is what the
+        nightly reset wants: it should tidy the settings, never switch the
+        thing on at midnight.
+        """
         from soundbar import control
 
         planned = []
-        if self.turn_on:
+        if self.turn_on and power:
             planned.append(("power on", lambda d: control.set_switch(d, on=True)))
         if self.input_source:
             source = self.input_source
@@ -181,10 +186,10 @@ class SoundProfile(models.Model):
                 )
         return planned
 
-    def apply(self, device_id):
+    def apply(self, device_id, *, power=True):
         """Send the lot. Returns what was sent and the first failure, if any."""
         done, failed = [], None
-        for label, action in self.steps():
+        for label, action in self.steps(power=power):
             try:
                 action(device_id)
             except Exception as error:  # noqa: BLE001

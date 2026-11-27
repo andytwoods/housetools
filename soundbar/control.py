@@ -108,6 +108,19 @@ def set_switch(device_id, *, on):
     return send(device_id, "switch", "on" if on else "off")
 
 
+def is_on(device_id):
+    """Whether the bar is on. Power is a standard capability, so it does read back."""
+    status = oauth.api("GET", f"/devices/{device_id}/status")
+    value = (
+        status.get("components", {})
+        .get("main", {})
+        .get("switch", {})
+        .get("switch", {})
+        .get("value")
+    )
+    return value == "on"
+
+
 def set_volume(device_id, level):
     return send(device_id, "audioVolume", "setVolume", [int(level)])
 
