@@ -1,0 +1,22 @@
+{
+  "appName": "housetools-soundbar",
+  "displayName": "housetools",
+  "description": "Sound profiles for the Samsung HW-Q930D soundbar.",
+  "appType": "API_ONLY",
+  "classifications": ["AUTOMATION"],
+  "singleInstance": true,
+  "apiOnly": {
+    "targetUrl": ""
+  },
+  "oauth": {
+    "clientName": "housetools",
+    "scope": [
+      "r:devices:*",
+      "w:devices:*",
+      "x:devices:*"
+    ],
+    "redirectUris": [
+      "https://housetools.applikuapp.com/soundbar/oauth/callback/"
+    ]
+  }
+}

@@ -8,4 +8,5 @@ urlpatterns = [
     path("", views.status, name="status"),
     path("connect/", views.connect, name="connect"),
     path("oauth/callback/", views.callback, name="callback"),
+    path("smartapp/", views.smartapp, name="smartapp"),
 ]

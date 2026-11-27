@@ -1,12 +1,18 @@
+import json
 import logging
 import secrets
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseBadRequest
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.crypto import constant_time_compare
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
+from soundbar import lifecycle
 from soundbar import oauth
 from soundbar.models import SmartThingsAuth
 
@@ -67,3 +73,26 @@ def callback(request):
     else:
         messages.success(request, "Connected to SmartThings.")
     return redirect("soundbar:status")
+
+
+@csrf_exempt
+@require_POST
+def smartapp(request):
+    """Where SmartThings posts its lifecycle events.
+
+    Open by necessity: SmartThings has to reach it before any credential
+    exists. Signature verification comes once registration works, and until
+    then the only thing an unsigned caller can do is make the app GET a URL
+    on api.smartthings.com or overwrite tokens it cannot read back.
+    """
+    try:
+        body = json.loads(request.body)
+    except ValueError:
+        return HttpResponseBadRequest("expected JSON")
+
+    if not isinstance(body, dict):
+        return HttpResponseBadRequest("expected an object")
+
+    logger.info("SmartThings lifecycle: %s", body.get("lifecycle"))
+    response = lifecycle.handle(body)
+    return JsonResponse(response, status=response.get("statusCode", 200))
