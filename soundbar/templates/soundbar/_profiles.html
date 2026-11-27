@@ -1,37 +1,20 @@
 {% if profiles %}
   <div class="mt-4 border shadow bg-faded p-4">
     <h2>Soundbar</h2>
-    {% if auth.is_connected %}
-      <p class="text-muted">One tap sets the bar up. It cannot read back what it is set to.</p>
-    {% else %}
-      <p class="text-danger">
-        Not connected to SmartThings. Install the housetools automation in the
-        SmartThings app on your phone.
-      </p>
+    {% if not auth.is_connected %}
+      <p class="text-danger">Not connected to SmartThings.</p>
     {% endif %}
 
-    <div class="row g-3 mt-1">
+    <div class="d-flex flex-wrap gap-2 mt-3">
       {% for profile in profiles %}
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="border bg-white p-3 h-100 d-flex flex-column">
-            <h3 class="h5">{{ profile.name }}</h3>
-            <ul class="small text-muted flex-grow-1 ps-3">
-              {% for label, action in profile.steps %}
-                <li>{{ label }}</li>
-              {% empty %}
-                <li>nothing set</li>
-              {% endfor %}
-            </ul>
-            <form method="post" action="{% url 'soundbar:apply-profile' profile.pk %}">
-              {% csrf_token %}
-              <input type="hidden" name="next" value="{{ request.path }}">
-              <button type="submit" class="btn btn-primary w-100"
-                      {% if not auth.is_connected %}disabled{% endif %}>
-                Apply
-              </button>
-            </form>
-          </div>
-        </div>
+        <form method="post" action="{% url 'soundbar:apply-profile' profile.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.path }}">
+          <button type="submit" class="btn btn-primary" title="{{ profile.summary }}"
+                  {% if not auth.is_connected %}disabled{% endif %}>
+            {{ profile.name }}
+          </button>
+        </form>
       {% endfor %}
     </div>
   </div>

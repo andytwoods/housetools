@@ -123,6 +123,11 @@ class SoundProfile(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def summary(self):
+        """One line, for the button's tooltip."""
+        return ", ".join(label for label, _ in self.steps()) or "nothing set"
+
     def steps(self):
         """What applying this profile would send, in order."""
         from soundbar import control
