@@ -28,10 +28,12 @@
       Loading Alexa stuff...
     </div>
 
-    {# Typed Alexa voice commands are switched off: the unofficial Amazon web
-       API needs a hand-pasted ALEXA_COOKIE that Amazon expires, and it has
-       been returning 401. /alexa-command/ and dns/alexa_commands.py are still
-       here, so putting this block back is all it takes to turn it on again. #}
+    {% comment %}
+      Typed Alexa voice commands are switched off: the unofficial Amazon web
+      API needs a hand-pasted ALEXA_COOKIE that Amazon expires, and it has
+      been returning 401. /alexa-command/ and dns/alexa_commands.py are still
+      here, so putting this block back is all it takes to turn it on again.
+    {% endcomment %}
 
   {% else %}
     <h2 class="text-danger mt-4">Login to get access to tools!</h2>
